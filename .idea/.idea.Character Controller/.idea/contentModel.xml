@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\PROYECTOS\Experimentos\Character Controller" t="IncludeRecursive">
+      <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
+      <e p="Assets" t="Include">
+        <e p="Scripts" t="Include">
+          <e p="CameraController.cs" t="Include" />
+          <e p="CommandInvoker.cs" t="Include" />
+          <e p="ControllerManager.cs" t="Include" />
+          <e p="CoreSystem.cs" t="Include" />
+          <e p="CoreUI.cs" t="Include" />
+          <e p="FloatValue.cs" t="Include" />
+          <e p="ICommand.cs" t="Include" />
+          <e p="ImageFillSetter.cs" t="Include" />
+          <e p="InputManager.cs" t="Include" />
+          <e p="InputReader.cs" t="Include" />
+          <e p="MoveCommand.cs" t="Include" />
+          <e p="PlayerActions.cs" t="Include" />
+          <e p="RelativeInput.cs" t="Include" />
+          <e p="RoyalController.cs" t="Include" />
+          <e p="StateMachineBehaviour" t="Include">
+            <e p="jump.cs" t="Include" />
+          </e>
+        </e>
+      </e>
+      <e p="Character Controller.sln" t="IncludeFlat" />
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="Packages" t="ExcludeRecursive" />
+      <e p="Temp\bin" t="ExcludeRecursive" />
+    </e>
+    <e p="C:\Users\alejandro.langarica\.Rider2019.1\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\alejandro.langarica\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_Character Controller.-467428312.00" t="ExcludeRecursive" />
+  </component>
+</project>
