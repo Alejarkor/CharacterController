@@ -15,7 +15,7 @@ public class MovementController : MonoBehaviour
     public int speed = 5;
     public int jumpPower = 2;
     public LayerMask mask;
-
+    private Coroutine jumping;
 
     // Start is called before the first frame update
     void Start()
@@ -30,39 +30,27 @@ public class MovementController : MonoBehaviour
     //}
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         alignMent = Vector3.Dot(myTransform.forward, relaiveInput.relativeInput);
         float sign = Vector3.Dot(myTransform.right, relaiveInput.relativeInput);
 
-        if (alignMent <= 0.99f)
+        if (alignMent <= 1f)
         {
             Debug.Log("Alignement");
             myTransform.Rotate(Vector3.up, rotationAmount * Time.deltaTime * sign);
         }
 
+        Vector3 newVelocity = transform.forward * speed * InputReader.weightJoy1 * Time.fixedDeltaTime + Vector3.up * targetRigidbody.velocity.y;
+                
+
         if (environmentDetector.onGround)
         {
-            if (environmentDetector.OnFrontWall)
-            {
-                
-                return;
-            }
-
-            Vector3 newPosition = myTransform.position + myTransform.forward * InputReader.weightJoy1 * speed * Time.deltaTime;
-            RaycastHit hitPoint;
-            Ray ray = new Ray(newPosition + Vector3.up * 3f, Vector3.down);
-            if (Physics.Raycast(ray, out hitPoint, 5f, mask))
-            {
-                newPosition = hitPoint.point;
-                //targetRigidbody.velocity = (hitPoint.point - transform.position) * speed;
-            }
-            
-            transform.position = Vector3.Lerp(transform.position, newPosition, 0.5f);
-            
+            //newVelocity.y = 0;
         }
-        
-        
+                
+
+        targetRigidbody.velocity = newVelocity;
 
         Jump();
     }
@@ -71,10 +59,23 @@ public class MovementController : MonoBehaviour
     {
         if (environmentDetector.onGround)
         {
-            if (InputReader.aButton)
+            if (InputReader.aButton && jumping==null)
             {
-                targetRigidbody.velocity = new Vector3(targetRigidbody.velocity.x, jumpPower, targetRigidbody.velocity.z);
+                jumping = StartCoroutine(SuperJump());
             }
         }
+    }
+
+    IEnumerator SuperJump() 
+    {
+        int milis = 0;
+        while (InputReader.aButton && milis<50) 
+        {
+            milis += (int)(Time.fixedDeltaTime * 50);
+            yield return null;
+        }
+        targetRigidbody.velocity = new Vector3(targetRigidbody.velocity.x, jumpPower * (float)milis/50f, targetRigidbody.velocity.z);
+        Debug.Log("JUMP!! with milis: " + milis);
+        jumping = null;
     }
 }
