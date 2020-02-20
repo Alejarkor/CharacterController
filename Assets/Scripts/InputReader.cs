@@ -33,7 +33,7 @@ public class InputReader : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        joy1 = new Vector2(Input.GetAxis("Joy1_x"), Input.GetAxis("Joy1_y"));
+        joy1 = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
         UpdateJoyAngle(joy1, ref joy1Angle);
 

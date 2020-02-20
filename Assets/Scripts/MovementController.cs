@@ -8,7 +8,8 @@ public class MovementController : MonoBehaviour
     public Rigidbody targetRigidbody;    
     public RelativeInput relaiveInput;
     public EnvironmentDetector environmentDetector;
-
+    public TranformPhysix tansformPhysix;
+    
     private float alignMent = 0;
     public int rotationAmount = 1080;
     public int speed = 5;
@@ -42,20 +43,25 @@ public class MovementController : MonoBehaviour
 
         if (environmentDetector.onGround)
         {
-            
+            if (environmentDetector.OnFrontWall)
+            {
+                
+                return;
+            }
+
             Vector3 newPosition = myTransform.position + myTransform.forward * InputReader.weightJoy1 * speed * Time.deltaTime;
             RaycastHit hitPoint;
-            Ray ray = new Ray(newPosition + Vector3.up, Vector3.down);
+            Ray ray = new Ray(newPosition + Vector3.up * 3f, Vector3.down);
             if (Physics.Raycast(ray, out hitPoint, 5f, mask))
             {
-                transform.position = hitPoint.point;
-            }
-            else 
-            {
-                transform.position = newPosition;
+                newPosition = hitPoint.point;
+                //targetRigidbody.velocity = (hitPoint.point - transform.position) * speed;
             }
             
+            transform.position = Vector3.Lerp(transform.position, newPosition, 0.5f);
+            
         }
+        
         
 
         Jump();

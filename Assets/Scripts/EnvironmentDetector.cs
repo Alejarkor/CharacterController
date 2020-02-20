@@ -18,12 +18,110 @@ public class EnvironmentDetector : MonoBehaviour
     //public LayerMask maskWall;
     public bool nearWall;
 
-   
+    public bool OnFrontWall;
+    public bool OnBackWall;
+    public bool OnRightWall;
+    public bool OnLeftWall;
+
+    [Header("Indicators")] 
+    public GameObject floor;
+    public GameObject front;
+    public GameObject back;
+    public GameObject right;
+    public GameObject left;
+
+    private MeshRenderer floorRenderer;
+    private MeshRenderer frontRenderer;
+    private MeshRenderer backRenderer;
+    private MeshRenderer rightRenderer;
+    private MeshRenderer leftRenderer;
+
+    private Material floorMat;
+    private Material frontMat;
+    private Material backMat;
+    private Material rightMat;
+    private Material leftMat;
+
     // Update is called once per frame
     void FixedUpdate()
     {
         CheckOnGround();
-        CheckNearWall();       
+        //CheckNearWall();  
+        CheckWalls();
+    }
+
+    public void Update()
+    {
+        UpdateIndicators();
+    }
+
+    public void UpdateIndicators()
+    {
+        if (onGround)
+        {
+            //floorMat;
+            floorRenderer.material.SetColor("_Color", Color.red);
+        }
+        else
+        {
+            floorRenderer.material.SetColor("_Color", Color.green);
+        }
+        
+        if (OnFrontWall)
+        {
+            //floorMat;
+            frontRenderer.material.SetColor("_Color", Color.red);
+        }
+        else
+        {
+            frontRenderer.material.SetColor("_Color", Color.green);
+        }
+        
+        if (OnBackWall)
+        {
+            //floorMat;
+            backRenderer.material.SetColor("_Color", Color.red);
+        }
+        else
+        {
+            backRenderer.material.SetColor("_Color", Color.green);
+        }
+        
+        if (OnRightWall)
+        {
+            //floorMat;
+            rightRenderer.material.SetColor("_Color", Color.red);
+        }
+        else
+        {
+            rightRenderer.material.SetColor("_Color", Color.green);
+        }
+        
+        if (OnLeftWall)
+        {
+            //floorMat;
+            leftRenderer.material.SetColor("_Color", Color.red);
+        }
+        else
+        {
+            leftRenderer.material.SetColor("_Color", Color.green);
+        }
+        
+    }
+
+    void Start()
+    {
+        floorRenderer = floor.GetComponent<MeshRenderer>();
+        frontRenderer = front.GetComponent<MeshRenderer>();
+        backRenderer = back.GetComponent<MeshRenderer>();
+        rightRenderer = right.GetComponent<MeshRenderer>();
+        leftRenderer = left.GetComponent<MeshRenderer>();
+        
+        floorMat = floorRenderer.material;
+        frontMat = frontRenderer.material;
+        backMat = backRenderer.material;
+        rightMat = rightRenderer.material;
+        leftMat = leftRenderer.material;
     }
 
     private void CheckOnGround()
@@ -40,6 +138,14 @@ public class EnvironmentDetector : MonoBehaviour
             }
         }
         
+    }
+
+    private void CheckWalls()
+    {
+        OnFrontWall =  Physics.Raycast(myTransform.position + Vector3.up * wallDetectorHeight, myTransform.forward, wallDetectorDistance);
+        OnBackWall =  Physics.Raycast(myTransform.position + Vector3.up * wallDetectorHeight, -myTransform.forward, wallDetectorDistance);
+        OnRightWall =  Physics.Raycast(myTransform.position + Vector3.up * wallDetectorHeight, myTransform.right, wallDetectorDistance);
+        OnLeftWall =  Physics.Raycast(myTransform.position + Vector3.up * wallDetectorHeight, -myTransform.right, wallDetectorDistance);
     }
 
     private void CheckNearWall()
