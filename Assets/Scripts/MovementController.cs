@@ -71,7 +71,7 @@ public class MovementController : MonoBehaviour
     {
         if (environmentDetector.onGround)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (InputReader.aButton)
             {
                 targetRigidbody.velocity = new Vector3(targetRigidbody.velocity.x, jumpPower, targetRigidbody.velocity.z);
             }
