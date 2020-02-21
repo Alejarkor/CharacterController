@@ -8,7 +8,7 @@ public class MovementController : MonoBehaviour
     public Rigidbody targetRigidbody;    
     public RelativeInput relaiveInput;
     public EnvironmentDetector environmentDetector;
-    public TranformPhysix tansformPhysix;
+    public Transform groundFitter;
     
     private float alignMent = 0;
     public int rotationAmount = 1080;
@@ -41,7 +41,22 @@ public class MovementController : MonoBehaviour
             myTransform.Rotate(Vector3.up, rotationAmount * Time.deltaTime * sign);
         }
 
-        Vector3 newVelocity = transform.forward * speed * InputReader.weightJoy1 * Time.fixedDeltaTime + Vector3.up * targetRigidbody.velocity.y;
+        Vector3 fitterRayOrigin = transform.position + transform.forward * speed * InputReader.weightJoy1 * Time.fixedDeltaTime + Vector3.up *(groundFitter.position.y - transform.position.y) ;
+        Ray fitterRay = new Ray( fitterRayOrigin, Vector3.down);
+
+        RaycastHit hit;
+
+        Vector3 newPosition = transform.position;
+        
+        if (Physics.Raycast(fitterRay, out hit, 10f))
+        {
+            newPosition = hit.point;
+        }
+
+        transform.position = Vector3.Lerp(transform.position, newPosition, 0.05f);
+        /*Vector3 inputVector = transform.forward * speed * InputReader.weightJoy1 * Time.fixedDeltaTime;
+        Vector3 inputProjected = Vector3.ProjectOnPlane( inputVector , environmentDetector.groundNormal);   
+        Vector3 newVelocity = (environmentDetector.onGround? inputProjected:inputVector) + Vector3.up * targetRigidbody.velocity.y;
                 
 
         if (environmentDetector.onGround)
@@ -52,7 +67,7 @@ public class MovementController : MonoBehaviour
 
         targetRigidbody.velocity = newVelocity;
 
-        Jump();
+        Jump();*/
     }
 
     private void Jump()
@@ -77,5 +92,11 @@ public class MovementController : MonoBehaviour
         targetRigidbody.velocity = new Vector3(targetRigidbody.velocity.x, jumpPower * (float)milis/50f, targetRigidbody.velocity.z);
         Debug.Log("JUMP!! with milis: " + milis);
         jumping = null;
+    }
+
+    public void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(groundFitter.position, groundFitter.position + Vector3.down * 10f );
     }
 }

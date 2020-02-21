@@ -8,6 +8,7 @@
       <e p="Assets" t="Include">
         <e p="Scripts" t="Include">
           <e p="CameraController.cs" t="Include" />
+          <e p="CharacterControllerController.cs" t="Include" />
           <e p="CommandInvoker.cs" t="Include" />
           <e p="ControllerManager.cs" t="Include" />
           <e p="CoreSystem.cs" t="Include" />

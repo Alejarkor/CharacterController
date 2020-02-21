@@ -11,6 +11,7 @@ public class EnvironmentDetector : MonoBehaviour
     public float groundDetectorDistance;
     //public LayerMask maskGround;
     public bool onGround;
+    public Vector3 groundNormal;
 
     [Header("Wall")]
     public float wallDetectorHeight;
@@ -126,8 +127,14 @@ public class EnvironmentDetector : MonoBehaviour
 
     private void CheckOnGround()
     {
-        onGround = Physics.Raycast(myTransform.position + Vector3.up * groundDetectorHeight, Vector3.down, groundDetectorDistance);
-        if (onGround) return;
+        RaycastHit hit;
+        Ray ray = new Ray(myTransform.position + Vector3.up * groundDetectorHeight, Vector3.down);
+        onGround = Physics.Raycast(ray, out hit, groundDetectorDistance);
+        if (onGround)
+        {
+            groundNormal = hit.normal;
+            return;
+        }
 
         for (int i = -1; i < 2; i+=2)
         { 
