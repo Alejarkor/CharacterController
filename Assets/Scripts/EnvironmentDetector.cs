@@ -13,6 +13,9 @@ public class EnvironmentDetector : MonoBehaviour
     public bool onGround;
     public Vector3 groundNormal;
 
+    public RaycastHit upWallRayHit;
+    public RaycastHit downWallRayHit;
+
     [Header("Wall")]
     public float rayWallsStepsDist = 0.4f;
     public bool[] onWalls;
@@ -72,13 +75,19 @@ public class EnvironmentDetector : MonoBehaviour
     {
         for (int i = 0;i<mRUpIndicators.Length;++i) 
         {
+
+            RaycastHit WallHit;
             Vector3 direction = Quaternion.Euler(0, i * 360/mRUpIndicators.Length, 0) * myTransform.forward;
             Ray rayWall = new Ray(myTransform.position + 1.7f * Vector3.up, direction);
             Ray rayStep = new Ray(myTransform.position + (movementController.stepOffset + 0.05f) * Vector3.up, direction);
-            if (Physics.Raycast(rayWall, movementController.radious + 0.3f))
+            if (Physics.Raycast(rayWall, out WallHit, movementController.radious + 0.3f))
             {
                 mRUpIndicators[i].material.SetColor("_Color", Color.red);                
                 onWalls[i] = true;
+                if (i == 0)
+                {
+                    upWallRayHit = WallHit;
+                }
             }
             else 
             {
@@ -86,10 +95,14 @@ public class EnvironmentDetector : MonoBehaviour
                 onWalls[i] = false;
             }
 
-            if (Physics.Raycast(rayStep, movementController.radious + 0.3f))
+            if (Physics.Raycast(rayStep, out WallHit, movementController.radious + 0.3f))
             {
                 mRDownIndicators[i].material.SetColor("_Color", Color.red);
                 onSteps[i] = true;
+                if (i == 0)
+                {
+                    downWallRayHit = WallHit;
+                }
             }
             else
             {

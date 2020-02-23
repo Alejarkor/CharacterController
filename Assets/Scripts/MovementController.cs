@@ -66,6 +66,7 @@ public class MovementController : MonoBehaviour
 
     public void Alignement() 
     {
+        if (state==characterState.climbing) return;
         alignMent = Vector3.Dot(myTransform.forward, relaiveInput.relativeInput);
         float sign = Vector3.Dot(myTransform.right, relaiveInput.relativeInput);
 
@@ -77,16 +78,71 @@ public class MovementController : MonoBehaviour
     }
     void FixedUpdate()
     {
-        Alignement();
-        OnGroundDesplacement();
+        Alignement(); //
+
+        OnGroundBehavior();
         AirborneBehaviour();
+        ClimbingBehavior();
+
         Jump();
+        AbleToStartClimbing();
+    }
+
+    public void ClimbingBehavior() 
+    {
+        if (state != characterState.climbing) return;
+        if (busy) return;
+        AbleToStopClimbing();
+    }
+
+    public void AbleToStartClimbing() 
+    {
+        if (busy) return;
+        if (InputReader.xButton)         {
+           
+            if (environmentDetector.onWalls[0] && environmentDetector.onSteps[0])
+            {
+                Debug.DrawLine(environmentDetector.upWallRayHit.point, environmentDetector.upWallRayHit.point + environmentDetector.upWallRayHit.normal);
+                SwitchState(characterState.climbing);
+                StartCoroutine(StartClimbing());
+            }
+        }
+    }
+
+    public void AbleToStopClimbing() 
+    {
+        
+        if (InputReader.bButton) 
+        {
+            SwitchState(characterState.airborne);            
+        }
     }
 
 
-    public void OnGroundDesplacement() 
+    IEnumerator StartClimbing() 
+    {
+        busy = true;
+        Vector3 climbForwardDirection = Vector3.ProjectOnPlane( -(environmentDetector.upWallRayHit.normal + environmentDetector.downWallRayHit.normal) * 0.5f, Vector3.up);
+        Vector3 climbStartPosition = environmentDetector.upWallRayHit.point + (environmentDetector.downWallRayHit.point - environmentDetector.upWallRayHit.point).normalized * 1.7f + 0.5f * environmentDetector.downWallRayHit.normal;
+        float transitionTime = 0.5f;
+        float progress = 0f;
+        float smoothnes = 0.05f;
+        float step = 0.05f / transitionTime;
+
+        while (progress<=1) 
+        {
+            progress += step;
+            myTransform.forward = Vector3.Lerp(myTransform.forward, climbForwardDirection, progress);
+            myTransform.position = Vector3.Lerp(myTransform.position, climbStartPosition, progress);
+            yield return new WaitForSeconds(smoothnes);
+        }
+        busy = false;
+    }
+
+    public void OnGroundBehavior() 
     {
         if (state != characterState.onGround) return;
+        if (busy) return;
 
         float value = Vector3.Dot(transform.forward, environmentDetector.groundNormal);
         //Debug.Log("dot: " + Math.Round(value, 2));
@@ -156,13 +212,15 @@ public class MovementController : MonoBehaviour
             case 1:
                 myCollider.enabled = false;
                 targetRigidbody.isKinematic = true;
+                targetRigidbody.constraints = RigidbodyConstraints.None;
                 break;
 
             //airborne
             case 2:                
                 myCollider.enabled = true;
                 targetRigidbody.isKinematic = false;
-                StartCoroutine(DisableOnGround());
+                targetRigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+                StartCoroutine(TurnBusy());
                 break;
         }
     }
@@ -180,7 +238,7 @@ public class MovementController : MonoBehaviour
         jumping = null;
     }
 
-    IEnumerator DisableOnGround() 
+    IEnumerator TurnBusy() 
     {
         busy = true;
         yield return new WaitForSeconds(0.2f);

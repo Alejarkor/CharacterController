@@ -40,6 +40,8 @@ public class InputReader : MonoBehaviour
         weightJoy1 = Mathf.Sqrt((joy1.x * joy1.x) + (joy1.y * joy1.y));
 
         aButton = Input.GetButton("A_button");
+        bButton = Input.GetButton("B_button");
+        xButton = Input.GetButton("X_button");        
     }
 
     private void UpdateJoyAngle(Vector2 joyValue, ref float joyAngle)

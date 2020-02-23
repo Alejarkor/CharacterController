@@ -7,6 +7,7 @@ public class RelativeInput : MonoBehaviour
 {
     public Transform camera;
 
+
     public Transform target;
     public float relativeAngle;
     public Vector3 relativeInput;
@@ -19,7 +20,17 @@ public class RelativeInput : MonoBehaviour
     private float rightSector;
     private Vector3 camProjected;
     private Vector3 targetProjected;
-    
+
+
+    [Header("Indicators")]
+    public Transform arrow;
+    private MeshRenderer mrArrow;
+
+    public void Start()
+    {
+        mrArrow = arrow.GetComponent<MeshRenderer>();
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -43,7 +54,17 @@ public class RelativeInput : MonoBehaviour
         }
 
         relativeInput = !float.IsNaN(InputReader.joy1Angle)? Quaternion.Euler(0, InputReader.joy1Angle, 0) * camProjected : relativeInput;
+
+        DebugInputArrow();
     }
+
+    public void DebugInputArrow() 
+    {
+        arrow.forward = relativeInput.normalized;
+        arrow.localScale = Vector3.one * InputReader.weightJoy1*2f;
+        mrArrow.material.SetColor("_Color", Color.Lerp(Color.cyan, Color.red, InputReader.weightJoy1));
+    }
+
 
     private void OnDrawGizmos()
     {
