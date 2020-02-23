@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnvironmentDetector : MonoBehaviour
 {
     public Transform myTransform;
-
+    private MovementController movementController;
     [Header("Ground")]
     public float groundDetectorHeight;
     public float groundDetectorDistance;
@@ -14,34 +14,15 @@ public class EnvironmentDetector : MonoBehaviour
     public Vector3 groundNormal;
 
     [Header("Wall")]
-    public float wallDetectorHeight;
-    public float wallDetectorDistance;
-    //public LayerMask maskWall;
-    public bool nearWall;
+    public float rayWallsStepsDist = 0.4f;
+    public bool[] onWalls;
+    public bool[] onSteps;    
 
-    public bool OnFrontWall;
-    public bool OnBackWall;
-    public bool OnRightWall;
-    public bool OnLeftWall;
-
-    [Header("Indicators")] 
-    public GameObject floor;
-    public GameObject front;
-    public GameObject back;
-    public GameObject right;
-    public GameObject left;
-
-    private MeshRenderer floorRenderer;
-    private MeshRenderer frontRenderer;
-    private MeshRenderer backRenderer;
-    private MeshRenderer rightRenderer;
-    private MeshRenderer leftRenderer;
-
-    private Material floorMat;
-    private Material frontMat;
-    private Material backMat;
-    private Material rightMat;
-    private Material leftMat;
+    [Header("Indicators")]
+    public MeshRenderer[] mRUpIndicators;
+    public MeshRenderer[] mRDownIndicators;        
+    public MeshRenderer floorRenderer;
+    
 
     // Update is called once per frame
     void FixedUpdate()
@@ -53,76 +34,16 @@ public class EnvironmentDetector : MonoBehaviour
 
     public void Update()
     {
-        UpdateIndicators();
+        
     }
 
-    public void UpdateIndicators()
-    {
-        if (onGround)
-        {
-            //floorMat;
-            floorRenderer.material.SetColor("_Color", Color.red);
-        }
-        else
-        {
-            floorRenderer.material.SetColor("_Color", Color.green);
-        }
-        
-        if (OnFrontWall)
-        {
-            //floorMat;
-            frontRenderer.material.SetColor("_Color", Color.red);
-        }
-        else
-        {
-            frontRenderer.material.SetColor("_Color", Color.green);
-        }
-        
-        if (OnBackWall)
-        {
-            //floorMat;
-            backRenderer.material.SetColor("_Color", Color.red);
-        }
-        else
-        {
-            backRenderer.material.SetColor("_Color", Color.green);
-        }
-        
-        if (OnRightWall)
-        {
-            //floorMat;
-            rightRenderer.material.SetColor("_Color", Color.red);
-        }
-        else
-        {
-            rightRenderer.material.SetColor("_Color", Color.green);
-        }
-        
-        if (OnLeftWall)
-        {
-            //floorMat;
-            leftRenderer.material.SetColor("_Color", Color.red);
-        }
-        else
-        {
-            leftRenderer.material.SetColor("_Color", Color.green);
-        }
-        
-    }
+   
 
     void Start()
     {
-        floorRenderer = floor.GetComponent<MeshRenderer>();
-        frontRenderer = front.GetComponent<MeshRenderer>();
-        backRenderer = back.GetComponent<MeshRenderer>();
-        rightRenderer = right.GetComponent<MeshRenderer>();
-        leftRenderer = left.GetComponent<MeshRenderer>();
-        
-        floorMat = floorRenderer.material;
-        frontMat = frontRenderer.material;
-        backMat = backRenderer.material;
-        rightMat = rightRenderer.material;
-        leftMat = leftRenderer.material;
+        onWalls = new bool[mRUpIndicators.Length];
+        onSteps = new bool[mRDownIndicators.Length];
+        movementController = myTransform.GetComponent<MovementController>();
     }
 
     private void CheckOnGround()
@@ -136,29 +57,49 @@ public class EnvironmentDetector : MonoBehaviour
             return;
         }
 
-        for (int i = -1; i < 2; i+=2)
-        { 
-            for (int j= -1; j < 2; j+=2)
+        for (int i = -1; i < 2; i += 2)
+        {
+            for (int j = -1; j < 2; j += 2)
             {
-                onGround = Physics.Raycast(myTransform.position + new Vector3(0.25f*i, 0f, 0.25f*j) + Vector3.up * groundDetectorHeight, Vector3.down, groundDetectorDistance);
+                onGround = Physics.Raycast(myTransform.position + new Vector3(0.2f * i, 0f, 0.2f * j) + Vector3.up * groundDetectorHeight, Vector3.down, groundDetectorDistance);
                 if (onGround) return;
             }
         }
-        
+
     }
 
     private void CheckWalls()
     {
-        OnFrontWall =  Physics.Raycast(myTransform.position + Vector3.up * wallDetectorHeight, myTransform.forward, wallDetectorDistance);
-        OnBackWall =  Physics.Raycast(myTransform.position + Vector3.up * wallDetectorHeight, -myTransform.forward, wallDetectorDistance);
-        OnRightWall =  Physics.Raycast(myTransform.position + Vector3.up * wallDetectorHeight, myTransform.right, wallDetectorDistance);
-        OnLeftWall =  Physics.Raycast(myTransform.position + Vector3.up * wallDetectorHeight, -myTransform.right, wallDetectorDistance);
+        for (int i = 0;i<mRUpIndicators.Length;++i) 
+        {
+            Vector3 direction = Quaternion.Euler(0, i * 360/mRUpIndicators.Length, 0) * myTransform.forward;
+            Ray rayWall = new Ray(myTransform.position + 1.7f * Vector3.up, direction);
+            Ray rayStep = new Ray(myTransform.position + (movementController.stepOffset + 0.05f) * Vector3.up, direction);
+            if (Physics.Raycast(rayWall, movementController.radious + 0.3f))
+            {
+                mRUpIndicators[i].material.SetColor("_Color", Color.red);                
+                onWalls[i] = true;
+            }
+            else 
+            {
+                mRUpIndicators[i].material.SetColor("_Color", Color.green);
+                onWalls[i] = false;
+            }
+
+            if (Physics.Raycast(rayStep, movementController.radious + 0.3f))
+            {
+                mRDownIndicators[i].material.SetColor("_Color", Color.red);
+                onSteps[i] = true;
+            }
+            else
+            {
+                mRDownIndicators[i].material.SetColor("_Color", Color.green);
+                onSteps[i] = false;
+            }
+        }
     }
 
-    private void CheckNearWall()
-    {
-        nearWall = Physics.Raycast(myTransform.position + Vector3.up * wallDetectorHeight, myTransform.forward, wallDetectorDistance);
-    }
+   
 
     private void OnDrawGizmos()
     {
@@ -171,15 +112,6 @@ public class EnvironmentDetector : MonoBehaviour
             Gizmos.color = Color.white;
         }
         Gizmos.DrawLine(myTransform.position + Vector3.up * groundDetectorHeight, myTransform.position + Vector3.up * groundDetectorHeight + Vector3.down * groundDetectorDistance);
-
-        if (nearWall)
-        {
-            Gizmos.color = Color.red;
-        }
-        else
-        {
-            Gizmos.color = Color.white;
-        }
-        Gizmos.DrawLine(myTransform.position + Vector3.up * wallDetectorHeight, myTransform.position + Vector3.up * wallDetectorHeight + myTransform.forward * wallDetectorDistance);
+                
     }
 }

@@ -31,13 +31,13 @@ public class TranformPhysix : MonoBehaviour
         _lastRotation = transform.rotation.eulerAngles;
     }
 
-    private void OnCollisionEnter(Collision other)
-    {
-        Rigidbody otherRig = other.gameObject.GetComponent<Rigidbody>();
-        if (otherRig)
-        {
-            Vector3 force = myRig.mass * velocity.magnitude * velocity.normalized;
-            other.rigidbody.AddForceAtPosition(force,other.contacts[0].point,ForceMode.Impulse);
-        }
-    }
+    //private void OnCollisionEnter(Collision other)
+    //{
+    //    Rigidbody otherRig = other.gameObject.GetComponent<Rigidbody>();
+    //    if (otherRig)
+    //    {
+    //        Vector3 force = myRig.mass * velocity.magnitude * velocity.normalized;
+    //        other.rigidbody.AddForceAtPosition(force,other.contacts[0].point,ForceMode.Impulse);
+    //    }
+    //}
 }
