@@ -29,6 +29,7 @@ public class MovementController : MonoBehaviour
 
     public Transform myTransform;
     public Rigidbody targetRigidbody;
+
     public Collider myCollider;
 
     public TranformPhysix transformPhysix;
@@ -55,20 +56,31 @@ public class MovementController : MonoBehaviour
         dotSlopeLimit = -1 * slopeLimit / 90f;
     }
 
+
+
     
+
     //private void FixedUpdate()
+
     //{
+
     //    Vector3 newVelocity = myTransform.forward * InputReader.weightJoy1 * speed;
+
     //    targetRigidbody.velocity = new Vector3(newVelocity.x, environmentDetector.onGround? 0f : targetRigidbody.velocity.y, newVelocity.z);
+
     //}
 
+
+
     // Update is called once per frame
+
+
 
     public void Alignement() 
     {
         if (state==characterState.climbing) return;
-        alignMent = Vector3.Dot(myTransform.forward, relaiveInput.relativeInput);
-        float sign = Vector3.Dot(myTransform.right, relaiveInput.relativeInput);
+        alignMent = Vector3.Dot(myTransform.forward, relaiveInput.relativeHorizontalInput);
+        float sign = Vector3.Dot(myTransform.right, relaiveInput.relativeHorizontalInput);
 
         if (alignMent <= 1f)
         {
@@ -81,11 +93,15 @@ public class MovementController : MonoBehaviour
         Alignement(); //
 
         OnGroundBehavior();
+
         AirborneBehaviour();
+
         ClimbingBehavior();
 
         Jump();
+
         AbleToStartClimbing();
+
     }
 
     public void ClimbingBehavior() 
@@ -93,6 +109,32 @@ public class MovementController : MonoBehaviour
         if (state != characterState.climbing) return;
         if (busy) return;
         AbleToStopClimbing();
+        
+        
+        Vector3 fitterRayOrigin = transform.position + Vector3.up * 0.85f + relaiveInput.relativeVerticalInput * speed * InputReader.weightJoy1 * Time.fixedDeltaTime;
+
+        Ray fitterRay = new Ray(fitterRayOrigin, transform.forward);
+
+        RaycastHit hit;
+
+        Vector3 newPosition = transform.position;
+
+
+
+        if (Physics.Raycast(fitterRay, out hit, groundFitterDistance))
+        {
+            newPosition = hit.point;
+        }
+        else 
+        {
+            SwitchState(characterState.airborne);
+            //targetRigidbody.velocity = transform.forward * speed * InputReader.weightJoy1;
+        }
+        //float val = Mathf.Clamp(newPosition.y - transform.position.y, -stepOffset - 0.1f, stepOffset + 0.1f);
+        float lerpValue = 0.5f;
+        transform.position = Vector3.Lerp(transform.position, newPosition, lerpValue * lerpValue);
+        
+        
     }
 
     public void AbleToStartClimbing() 
@@ -101,6 +143,7 @@ public class MovementController : MonoBehaviour
         if (InputReader.xButton)         {
            
             if (environmentDetector.onWalls[0] && environmentDetector.onSteps[0])
+
             {
                 Debug.DrawLine(environmentDetector.upWallRayHit.point, environmentDetector.upWallRayHit.point + environmentDetector.upWallRayHit.normal);
                 SwitchState(characterState.climbing);
@@ -149,11 +192,14 @@ public class MovementController : MonoBehaviour
         if (environmentDetector.onWalls[0] || environmentDetector.onWalls[1] || environmentDetector.onWalls[7]) return;
         //Vector3 fitterRayOrigin = transform.position + (value < 0 ? 1f + value : 1f) * transform.forward * speed * InputReader.weightJoy1 * Time.fixedDeltaTime + Vector3.up *(groundFitter.position.y - transform.position.y) ;
         Vector3 fitterRayOrigin = transform.position + (1 - Mathf.Abs(value)) * transform.forward * speed * InputReader.weightJoy1 * Time.fixedDeltaTime + Vector3.up * (groundFitter.position.y - transform.position.y);
+
         Ray fitterRay = new Ray(fitterRayOrigin, Vector3.down);
 
         RaycastHit hit;
 
         Vector3 newPosition = transform.position;
+
+
 
         if (Physics.Raycast(fitterRay, out hit, groundFitterDistance))
         {
@@ -162,11 +208,12 @@ public class MovementController : MonoBehaviour
         else 
         {
             SwitchState(characterState.airborne);
-            targetRigidbody.velocity = transform.forward * speed * InputReader.weightJoy1;
+            //targetRigidbody.velocity = transform.forward * speed * InputReader.weightJoy1;
         }
         float val = Mathf.Clamp(newPosition.y - transform.position.y, -stepOffset - 0.1f, stepOffset + 0.1f);
         float lerpValue = 1 - Mathf.Abs(val / (stepOffset + 0.1f));
         transform.position = Vector3.Lerp(transform.position, newPosition, lerpValue * lerpValue);
+
     }
 
     private void Jump()
@@ -175,6 +222,7 @@ public class MovementController : MonoBehaviour
         {
             if (InputReader.aButton)
             {
+
                 SwitchState(characterState.airborne);
                 targetRigidbody.velocity = transformPhysix.velocity/2f +  jumpPower * Vector3.Lerp(Vector3.up, myTransform.forward ,InputReader.weightJoy1 * 0.3f).normalized;
             }           
@@ -204,19 +252,27 @@ public class MovementController : MonoBehaviour
         {
             //onGround
             case 0:
+
                 myCollider.enabled = false;
                 targetRigidbody.isKinematic = true;
                 break;
 
+
+
             //climbing
+
             case 1:
                 myCollider.enabled = false;
                 targetRigidbody.isKinematic = true;
                 targetRigidbody.constraints = RigidbodyConstraints.None;
                 break;
 
+
+
             //airborne
+
             case 2:                
+
                 myCollider.enabled = true;
                 targetRigidbody.isKinematic = false;
                 targetRigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;

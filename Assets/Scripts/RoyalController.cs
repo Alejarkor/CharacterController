@@ -31,14 +31,14 @@ public class RoyalController : MonoBehaviour
     {
         velocity = targetRigidbody.velocity;
         anim.SetFloat("weight", InputReader.weightJoy1);
-        Quaternion rot = targetTransform.rotation * Quaternion.FromToRotation(Vector3.ProjectOnPlane(targetTransform.forward, Vector3.up) , relaiveInput.relativeInput);
+        Quaternion rot = targetTransform.rotation * Quaternion.FromToRotation(Vector3.ProjectOnPlane(targetTransform.forward, Vector3.up) , relaiveInput.relativeHorizontalInput);
         Vector3 rotationEuler = targetTransform.rotation.eulerAngles;
         rotationEuler.x = 0;
         rotationEuler.z = 0;
         //myTransform.rotation = Quaternion.Lerp(Quaternion.Euler(rotationEuler) , rot, 0.1f);
 
-        alignMent = Vector3.Dot(targetTransform.forward, relaiveInput.relativeInput);
-        float sign = Vector3.Dot(targetTransform.right, relaiveInput.relativeInput);
+        alignMent = Vector3.Dot(targetTransform.forward, relaiveInput.relativeHorizontalInput);
+        float sign = Vector3.Dot(targetTransform.right, relaiveInput.relativeHorizontalInput);
         
         if (alignMent<=0.99f)
         {

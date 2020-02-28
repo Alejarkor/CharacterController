@@ -10,7 +10,8 @@ public class RelativeInput : MonoBehaviour
 
     public Transform target;
     public float relativeAngle;
-    public Vector3 relativeInput;
+    public Vector3 relativeHorizontalInput;
+    public Vector3 relativeVerticalInput;
     /// <summary>
     /// Absolute value angle between target forward and projected camera forward.
     /// </summary>
@@ -23,12 +24,15 @@ public class RelativeInput : MonoBehaviour
 
 
     [Header("Indicators")]
-    public Transform arrow;
-    private MeshRenderer mrArrow;
+    public Transform arrowHorizontal;
+    public Transform arrowVertical;
+    private MeshRenderer mrArrowHorizontal;
+    private MeshRenderer mrArrowVertical;
 
     public void Start()
     {
-        mrArrow = arrow.GetComponent<MeshRenderer>();
+        mrArrowHorizontal = arrowHorizontal.GetComponent<MeshRenderer>();
+        mrArrowVertical = arrowVertical.GetComponent<MeshRenderer>();
     }
 
     // Update is called once per frame
@@ -36,8 +40,9 @@ public class RelativeInput : MonoBehaviour
     {
         camProjected = Vector3.ProjectOnPlane(camera.forward, Vector3.up).normalized;
         
-        //TODO: Probably target's transform never rotate so it could be used target.forward insted of targetProjected
+        
         targetProjected = Vector3.ProjectOnPlane(target.forward, Vector3.up).normalized; 
+        
         
         float angleABS = Vector3.Angle(target.forward, camProjected);
 
@@ -53,16 +58,23 @@ public class RelativeInput : MonoBehaviour
             relativeAngle = 360 - angleABS;
         }
 
-        relativeInput = !float.IsNaN(InputReader.joy1Angle)? Quaternion.Euler(0, InputReader.joy1Angle, 0) * camProjected : relativeInput;
+        relativeVerticalInput = !float.IsNaN(InputReader.joy1Angle)? Quaternion.AngleAxis(InputReader.joy1Angle, -target.forward) * Vector3.up:relativeVerticalInput;
+        
+        relativeHorizontalInput = !float.IsNaN(InputReader.joy1Angle)? Quaternion.Euler(0, InputReader.joy1Angle, 0) * camProjected : relativeHorizontalInput;
+        //relativeVerticalInput = !float.IsNaN(InputReader.joy1Angle)? Quaternion.Euler(0, InputReader.joy1Angle, 0) * camProjected : relativeHorizontalInput;
 
         DebugInputArrow();
     }
 
     public void DebugInputArrow() 
     {
-        arrow.forward = relativeInput.normalized;
-        arrow.localScale = Vector3.one * InputReader.weightJoy1*2f;
-        mrArrow.material.SetColor("_Color", Color.Lerp(Color.cyan, Color.red, InputReader.weightJoy1));
+        arrowHorizontal.forward = relativeHorizontalInput.normalized;
+        arrowHorizontal.localScale = Vector3.one * InputReader.weightJoy1*2f;
+        mrArrowHorizontal.material.SetColor("_Color", Color.Lerp(Color.cyan, Color.red, InputReader.weightJoy1));
+
+        arrowVertical.forward = relativeVerticalInput;
+        arrowVertical.localScale = Vector3.one*InputReader.weightJoy1 * 2f;
+        mrArrowVertical.material.SetColor("_Color", Color.Lerp(Color.cyan, Color.red, InputReader.weightJoy1));
     }
 
 
@@ -74,6 +86,6 @@ public class RelativeInput : MonoBehaviour
         
         Gizmos.color = Color.green;
         
-        Gizmos.DrawLine(target.position, target.position + relativeInput * 2f );
+        Gizmos.DrawLine(target.position, target.position + relativeHorizontalInput * 2f );
     }
 }

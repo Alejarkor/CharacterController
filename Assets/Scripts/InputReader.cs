@@ -33,15 +33,15 @@ public class InputReader : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        joy1 = new Vector2(Input.GetAxis("Joy1_x"), Input.GetAxis("Joy1_y"));
+        joy1 = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
         UpdateJoyAngle(joy1, ref joy1Angle);
 
         weightJoy1 = Mathf.Sqrt((joy1.x * joy1.x) + (joy1.y * joy1.y));
 
-        aButton = Input.GetButton("A_button");
-        bButton = Input.GetButton("B_button");
-        xButton = Input.GetButton("X_button");        
+        aButton = Input.GetButton("Jump");
+        bButton = Input.GetButton("UnAction");
+        xButton = Input.GetButton("Action");        
     }
 
     private void UpdateJoyAngle(Vector2 joyValue, ref float joyAngle)

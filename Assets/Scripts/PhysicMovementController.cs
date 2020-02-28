@@ -31,8 +31,8 @@ public class PhysicMovementController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        alignMent = Vector3.Dot(myTransform.forward, relaiveInput.relativeInput);
-        float sign = Vector3.Dot(myTransform.right, relaiveInput.relativeInput);
+        alignMent = Vector3.Dot(myTransform.forward, relaiveInput.relativeHorizontalInput);
+        float sign = Vector3.Dot(myTransform.right, relaiveInput.relativeHorizontalInput);
 
         if (alignMent <= 0.99f)
         {

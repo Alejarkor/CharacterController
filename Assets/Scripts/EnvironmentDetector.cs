@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EnvironmentDetector : MonoBehaviour
 {
+    
+    
     public Transform myTransform;
     private MovementController movementController;
     [Header("Ground")]
@@ -48,7 +50,7 @@ public class EnvironmentDetector : MonoBehaviour
         onSteps = new bool[mRDownIndicators.Length];
         movementController = myTransform.GetComponent<MovementController>();
     }
-
+    
     private void CheckOnGround()
     {
         RaycastHit hit;
@@ -112,7 +114,22 @@ public class EnvironmentDetector : MonoBehaviour
         }
     }
 
-   
+    private void GetWallInfo()
+    {
+        RaycastHit WallHit;
+        Vector3 direction = myTransform.forward;
+        Ray rayWall = new Ray(myTransform.position + 0.85f * Vector3.up, direction);
+        Ray rayStep = new Ray(myTransform.position + (movementController.stepOffset + 0.05f) * Vector3.up, direction);
+        if (Physics.Raycast(rayWall, out WallHit, movementController.radious + 0.3f))
+        {
+           
+        }
+        else 
+        {
+           
+        }
+
+    }
 
     private void OnDrawGizmos()
     {

@@ -20,8 +20,8 @@ public class CharacterControllerController : MonoBehaviour
     // Start is called before the first frame update
     void Update()
     {
-        alignMent = Vector3.Dot(myTransform.forward, relaiveInput.relativeInput);
-        float sign = Vector3.Dot(myTransform.right, relaiveInput.relativeInput);
+        alignMent = Vector3.Dot(myTransform.forward, relaiveInput.relativeHorizontalInput);
+        float sign = Vector3.Dot(myTransform.right, relaiveInput.relativeHorizontalInput);
 
         if (alignMent <= 1f)
         {
