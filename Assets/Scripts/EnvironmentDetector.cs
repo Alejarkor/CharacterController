@@ -42,7 +42,7 @@ public class EnvironmentDetector : MonoBehaviour
         
     }
 
-   
+    
 
     void Start()
     {

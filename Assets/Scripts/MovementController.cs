@@ -42,6 +42,7 @@ public class MovementController : MonoBehaviour
     public float speed = 5f;
     public float jumpPower = 7.5f;
     public float groundFitterDistance;
+    public float wallFitterDistance;
     public float airBorneSensitivity;
     public LayerMask mask;
     private Coroutine jumping;
@@ -111,7 +112,7 @@ public class MovementController : MonoBehaviour
         AbleToStopClimbing();
         
         
-        Vector3 fitterRayOrigin = transform.position + Vector3.up * 0.85f + relaiveInput.relativeVerticalInput * speed * InputReader.weightJoy1 * Time.fixedDeltaTime;
+        Vector3 fitterRayOrigin = transform.position + Vector3.up * 0.85f - 0.5f * transform.forward + relaiveInput.relativeVerticalInput * speed * InputReader.weightJoy1 * Time.fixedDeltaTime;
 
         Ray fitterRay = new Ray(fitterRayOrigin, transform.forward);
 
@@ -121,9 +122,9 @@ public class MovementController : MonoBehaviour
 
 
 
-        if (Physics.Raycast(fitterRay, out hit, groundFitterDistance))
+        if (Physics.Raycast(fitterRay, out hit, wallFitterDistance))
         {
-            newPosition = hit.point;
+            newPosition = hit.point - Vector3.up * 0.85f + 0.5f * Vector3.ProjectOnPlane(environmentDetector.downWallRayHit.normal,Vector3.up);
         }
         else 
         {
@@ -154,13 +155,16 @@ public class MovementController : MonoBehaviour
 
     public void AbleToStopClimbing() 
     {
-        
+        if (environmentDetector.onGround)
+        {
+            SwitchState(characterState.onGround); 
+        }
+
         if (InputReader.bButton) 
         {
             SwitchState(characterState.airborne);            
         }
     }
-
 
     IEnumerator StartClimbing() 
     {
@@ -179,6 +183,22 @@ public class MovementController : MonoBehaviour
             myTransform.position = Vector3.Lerp(myTransform.position, climbStartPosition, progress);
             yield return new WaitForSeconds(smoothnes);
         }
+        busy = false;
+    }
+
+    IEnumerator UpStopClimbing(Vector3 postion)
+    {
+        busy = true;
+        yield return null;
+
+        busy = false;
+    }
+
+    IEnumerator DownStopClimbing()
+    {
+        busy = true;
+        yield return null;
+
         busy = false;
     }
 
@@ -208,7 +228,7 @@ public class MovementController : MonoBehaviour
         else 
         {
             SwitchState(characterState.airborne);
-            //targetRigidbody.velocity = transform.forward * speed * InputReader.weightJoy1;
+            targetRigidbody.velocity = transform.forward * speed * InputReader.weightJoy1;
         }
         float val = Mathf.Clamp(newPosition.y - transform.position.y, -stepOffset - 0.1f, stepOffset + 0.1f);
         float lerpValue = 1 - Mathf.Abs(val / (stepOffset + 0.1f));

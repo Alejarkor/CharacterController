@@ -5714,6 +5714,7 @@ MonoBehaviour:
   speed: 5
   jumpPower: 7
   groundFitterDistance: 2.2
+  wallFitterDistance: 1.5
   airBorneSensitivity: 3
   mask:
     serializedVersion: 2
